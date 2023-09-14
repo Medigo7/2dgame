@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Document</title>
+</head>
+  <style>
+    *{
+    margin: 0;
+    padding: 0;
+}
+html, body{
+    height: 100%;
+}
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: rgb(58, 129, 0);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+.score{
+    font-size: 4em;
+    margin-bottom: .5em;
+}
+.board{
+    height: 600px;
+    width: 600px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 80px;
+}
+.hole{
+    background-color: rgb(165, 85, 11);
+    border-radius: 50%;
+    box-shadow: inset 0 10px 0 7px rgb(53, 21, 6),
+                inset 0 20px 20px 15px rgba(0, 0, 0, .3),
+                0 0 5px rgba(0, 0, 0, .5);
+    position: relative;
+    overflow: hidden;
+}
+.hole .mole{
+    width: 70%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    animation: rise .3s ease-out;
+}
+@keyframes rise {
+    0%{
+        transform: translateX(-50%) translateY(100%);
+    }
+    100%{
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.cursor{
+    height: 110px;
+    width: 100px;
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    background-image: url('assets/hammer.png');
+    background-size: 100% 100%;
+    transform: translate(-20%, -20%);
+    transition: transform .1s;
+    pointer-events: none;
+}
+.cursor.active{
+    transform: translate(-20%, -20%) rotate(-45deg);
+}
+
+    </style>
+<body>
+    <h1 class="score">SCORE: <span>00</span></h1>
+    <div class="board">
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+        <div class="hole"></div>
+    </div>
+    <div class="cursor"></div>
+
+    <script src="main.js"></script>
+</body>
+</html>
+<script>
+  const cursor = document.querySelector('.cursor')
+const holes = [...document.querySelectorAll('.hole')]
+const scoreEl = document.querySelector('.score span')
+let score = 0
+
+const sound = new Audio("assets/smash.mp3")
+
+function run(){
+    const i = Math.floor(Math.random() * holes.length)
+    const hole = holes[i]
+    let timer = null
+
+    const img = document.createElement('img')
+    img.classList.add('mole')
+    img.src = 'assets/mole.png'
+
+    img.addEventListener('click', () => {
+        score += 10
+        sound.play()
+        scoreEl.textContent = score
+        img.src = 'assets/mole-whacked.png'
+        clearTimeout(timer)
+        setTimeout(() => {
+            hole.removeChild(img)
+            run()
+        }, 500)
+    })
+
+    hole.appendChild(img)
+
+    timer = setTimeout(() => {
+        hole.removeChild(img)
+        run()
+    }, 1500)
+}
+run()
+
+window.addEventListener('mousemove', e => {
+    cursor.style.top = e.pageY + 'px'
+    cursor.style.left = e.pageX + 'px'
+})
+window.addEventListener('mousedown', () => {
+    cursor.classList.add('active')
+})
+window.addEventListener('mouseup', () => {
+    cursor.classList.remove('active')
+})
+</script>
